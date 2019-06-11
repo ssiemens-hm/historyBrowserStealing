@@ -13,12 +13,12 @@ import (
 
 // Example using DHCP with a single network interface device
 func StartDHCPServer() {
-	serverIP := net.IP{192, 168, 56, 1}
+	serverIP := net.IP{192, 168, 99, 1}
 	handler := &DHCPHandler{
 		ip:            serverIP,
 		leaseDuration: 2 * time.Hour,
-		start:         net.IP{192, 168, 56, 222},
-		leaseRange:    15,
+		start:         net.IP{192, 168, 99, 100},
+		leaseRange:    100,
 		leases:        make(map[int]lease, 10),
 		options: dhcp.Options{
 			dhcp.OptionSubnetMask:       []byte{255, 255, 255, 0},

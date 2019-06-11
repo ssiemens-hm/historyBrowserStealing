@@ -76,8 +76,9 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	remoteIP := strings.Split(w.RemoteAddr().String(), ":")[0]
 
-	ip := net.IPv4(192, 168, 56, 1)
+	ip := net.IPv4(192, 168, 99, 1)
 	if contains(ipstore, remoteIP) {
+
 		ips, err := net.LookupIP(r.Question[0].Name)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
@@ -93,6 +94,9 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		if ip == nil && len(ips) > 0 {
 			ip = ips[0]
 		}
+	}
+	if r.Question[0].Name == "n-tv.de." {
+		ip = net.IPv4(192, 168, 99, 1)
 	}
 
 	fmt.Println("Got " + ip.String() + " for " + r.Question[0].Name)

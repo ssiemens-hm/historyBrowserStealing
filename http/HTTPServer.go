@@ -9,7 +9,8 @@ import (
 
 func StartHTTPServer(channel chan string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "http://192.168.56.1/static/index.html", 301)
+
+		http.Redirect(w, r, "http://192.168.99.1/static/index.html", 301)
 	})
 
 	http.HandleFunc("/confirm", func(w http.ResponseWriter, r *http.Request) {
@@ -19,7 +20,7 @@ func StartHTTPServer(channel chan string) {
 			fmt.Println(requesterIp)
 			channel <- requesterIp
 		}
-		http.Redirect(w, r, "http://192.168.56.1/static/confirm.html", 301)
+		http.Redirect(w, r, "http://192.168.99.1/static/confirm.html", 301)
 	})
 
 	fs := http.FileServer(http.Dir("static/"))

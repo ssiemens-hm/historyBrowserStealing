@@ -68,6 +68,8 @@ func (h *DHCPHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options
 		return packet
 
 	case dhcp.Request:
+		fmt.Println("Got DHCP-Request from MAC " + p.CHAddr().String())
+
 		if server, ok := options[dhcp.OptionServerIdentifier]; ok && !net.IP(server).Equal(h.ip) {
 			return nil // Message not for this dhcp server
 		}
@@ -80,11 +82,13 @@ func (h *DHCPHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options
 			if leaseNum := dhcp.IPRange(h.start, reqIP) - 1; leaseNum >= 0 && leaseNum < h.leaseRange {
 				if l, exists := h.leases[leaseNum]; !exists || l.nic == p.CHAddr().String() {
 					h.leases[leaseNum] = lease{nic: p.CHAddr().String(), expiry: time.Now().Add(h.leaseDuration)}
+					fmt.Println("Send DHCP-ACK for MAC " + p.CHAddr().String())
 					return dhcp.ReplyPacket(p, dhcp.ACK, h.ip, reqIP, h.leaseDuration,
 						h.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 				}
 			}
 		}
+		fmt.Println("Send DHCP-NAK for MAC " + p.CHAddr().String())
 		return dhcp.ReplyPacket(p, dhcp.NAK, h.ip, nil, 0, nil)
 
 	case dhcp.Release, dhcp.Decline:

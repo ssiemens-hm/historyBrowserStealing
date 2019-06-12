@@ -11,7 +11,7 @@ import (
 func StartLiveCapturing() {
 	if handle, err := pcap.OpenLive("enp0s20f0u2", 1600, true, pcap.BlockForever); err != nil {
 		panic(err)
-	} else if err := handle.SetBPFFilter("tcp and dst port 80"); err != nil { // optional
+	} else if err := handle.SetBPFFilter("tcp and (dst port 80 or dst port 443)"); err != nil { // optional
 		panic(err)
 	} else {
 		packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
@@ -19,6 +19,9 @@ func StartLiveCapturing() {
 
 			if packet.ApplicationLayer() != nil {
 				getRequest := string(packet.ApplicationLayer().Payload())
+				fmt.Println("---Start BPF Packet ---")
+				fmt.Println(getRequest)
+				fmt.Println("---End BPF Packet ---")
 				scanner := bufio.NewScanner(strings.NewReader(getRequest))
 				headertagToValue := make(map[string]string)
 

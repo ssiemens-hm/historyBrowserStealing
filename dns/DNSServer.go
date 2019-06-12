@@ -134,8 +134,8 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		if err := tr.Out(w, r, c); err != nil {
 			return
 		}
-		soa, _ := dns.NewRR(`whoami.miek.nl. 0 IN SOA linode.atoom.net. miek.miek.nl. 2009032802 21600 7200 604800 3600`)
-		c <- &dns.Envelope{RR: []dns.RR{soa, t, rr, soa}}
+		//soa, _ := dns.NewRR(`whoami.miek.nl. 0 IN SOA linode.atoom.net. miek.miek.nl. 2009032802 21600 7200 604800 3600`)
+		//c <- &dns.Envelope{RR: []dns.RR{soa, t, rr, soa}}
 		w.Hijack()
 		// w.Close() // Client closes connection
 		return
@@ -150,14 +150,6 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 	}
 	if *printf {
 		fmt.Printf("%v\n", m.String())
-	}
-	// set TC when question is tc.miek.nl.
-	if m.Question[0].Name == "tc.miek.nl." {
-		m.Truncated = true
-		// send half a message
-		buf, _ := m.Pack()
-		w.Write(buf[:len(buf)/2])
-		return
 	}
 	w.WriteMsg(m)
 }

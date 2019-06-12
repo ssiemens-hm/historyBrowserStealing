@@ -95,9 +95,6 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 			ip = ips[0]
 		}
 	}
-	if r.Question[0].Name == "n-tv.de." {
-		ip = net.IPv4(192, 168, 99, 1)
-	}
 
 	fmt.Println("Got " + ip.String() + " for " + r.Question[0].Name)
 

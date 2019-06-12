@@ -7,8 +7,22 @@
 <body>
 <h1>Hotspot</h1>
 
-<form action="/confirm" method="POST">
-    <input type="checkbox" name="confirmation" value="confirmation">Confirm terms and conditions<br><br>
+<script>
+
+    function checkForm(form)
+    {
+        if(!form.confirmation.checked) {
+            alert("Please indicate that you accept the Terms and Conditions");
+            form.confirmation.focus();
+            return false;
+        }
+        return true;
+    }
+
+</script>
+
+<form action="/confirm" method="POST" onsubmit="return checkForm(this);">
+    <input type="checkbox" name="confirmation" required value="confirmation">Confirm terms and conditions<br><br>
     <input type="submit" value="Submit">
 </form>
 <p></p>

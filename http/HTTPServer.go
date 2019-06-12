@@ -24,7 +24,6 @@ func StartHTTPServer(channel chan string) {
 	})
 
 	fs := http.FileServer(http.Dir("static/"))
-	fmt.Println(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	log.Fatal(http.ListenAndServe(":80", nil))

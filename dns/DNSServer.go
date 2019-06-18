@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+var IpToDNS = make(map[string]string)
 var ipstore = make([]string, 0)
 
 func StartDNSServer(channel chan string) {
@@ -96,7 +97,10 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		}
 	}
 
-	fmt.Println("Got " + ip.String() + " for " + r.Question[0].Name)
+	if ip != nil {
+		fmt.Printf("[%s] DNS-Request: %s | Answer: %s", remoteIP, r.Question[0].Name, ip.String())
+		IpToDNS[remoteIP] = ip.String()
+	}
 
 	if v4 {
 		rr = &dns.A{

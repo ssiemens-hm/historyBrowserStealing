@@ -81,7 +81,7 @@ func StartLiveCapturing() {
 				//fmt.Printf("[Found-DNS] From: %s To: %s Port: %s\n", srcIp,dstIp,dstPort)
 				isOfInterest := false
 				for _, dnsentry := range dnsOfInterest {
-					//fmt.Printf("Compare %s with %s\n", dnsentry, string(dnsentry))
+					fmt.Printf("Compare %s with %s\n", dnsentry, string(dnsentry))
 					if dnsname == string(dnsentry) {
 						isOfInterest = true
 						break

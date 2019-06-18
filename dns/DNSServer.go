@@ -8,11 +8,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 var IpToDNS = make(map[string]string)
 var ipstore = make([]string, 0)
+var mutex = sync.Mutex{}
 
 func StartDNSServer(channel chan string) {
 	fmt.Println("Starting DNS Server...")
@@ -99,7 +101,7 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 
 	if ip != nil {
 		fmt.Printf("[%s] DNS-Request: %s | Answer: %s", remoteIP, r.Question[0].Name, ip.String())
-		IpToDNS[remoteIP] = ip.String()
+		addDnsToIp(remoteIP, ip.String())
 	}
 
 	if v4 {
@@ -156,4 +158,10 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 		fmt.Printf("%v\n", m.String())
 	}
 	w.WriteMsg(m)
+}
+
+func addDnsToIp(remoteIP string, dnsname string) {
+	mutex.Lock()
+	IpToDNS[remoteIP] = dnsname
+	mutex.Unlock()
 }

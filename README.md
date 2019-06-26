@@ -13,6 +13,9 @@ Commands:
 
 After that the iptables service needs to be restarted.
 
+Allow ip forwarding:
+>echo 1 > /proc/sys/net/ipv4/ip_forward
+
 To define the interface to answer the DHCP-Requests it's necessary to change "serverif.go" file in the "github.com/krolaw/dhcp4/conn" package 
 
 	

@@ -61,7 +61,7 @@ func (h *DHCPHandler) ServeDHCP(p dhcp.Packet, msgType dhcp.MessageType, options
 			return
 		}
 	reply:
-		fmt.Printf("Send DHCP-Offer to MAC %s for IP %s", nic, dhcp.IPAdd(h.start, free).String())
+		fmt.Printf("Send DHCP-Offer to MAC %s for IP %s\n", nic, dhcp.IPAdd(h.start, free).String())
 		packet := dhcp.ReplyPacket(p, dhcp.Offer, h.ip, dhcp.IPAdd(h.start, free), h.leaseDuration,
 			h.options.SelectOrderOrAll(options[dhcp.OptionParameterRequestList]))
 

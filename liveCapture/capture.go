@@ -3,10 +3,9 @@ package liveCapture
 import (
 	"bufio"
 	"fmt"
-	"historyBrowserStealing/dns"
-
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/pcap"
+	"historyBrowserStealing/dns"
 	"strings"
 )
 
@@ -76,12 +75,14 @@ func StartLiveCapturing() {
 			srcIp := packet.NetworkLayer().NetworkFlow().Src().String()
 			dstIp := packet.NetworkLayer().NetworkFlow().Dst().String()
 			dstPort := packet.TransportLayer().TransportFlow().Dst().String()
+			dns.Mutex.Lock()
 			dnsname, foundDnsName := dns.IpToDNS[dstIp]
+			dns.Mutex.Unlock()
 			if foundDnsName {
 				//fmt.Printf("[Found-DNS] From: %s To: %s Port: %s\n", srcIp,dstIp,dstPort)
 				isOfInterest := false
-				for _, dnsentry := range dnsOfInterest {
-					fmt.Printf("Compare %s with %s\n", dnsentry, string(dnsentry))
+					for _, dnsentry := range dnsOfInterest {
+					//fmt.Printf("Compare %s with %s\n", dnsentry, string(dnsentry))
 					if dnsname == string(dnsentry) {
 						isOfInterest = true
 						break

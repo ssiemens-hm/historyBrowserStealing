@@ -1,7 +1,6 @@
 package http
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -17,7 +16,6 @@ func StartHTTPServer(channel chan string) {
 		r.ParseForm()
 		if r.PostFormValue("confirmation") == "confirmation" {
 			requesterIp := strings.Split(r.RemoteAddr, ":")[0]
-			fmt.Println(requesterIp)
 			channel <- requesterIp
 		}
 		http.Redirect(w, r, "http://192.168.99.1/static/confirm.html", 301)

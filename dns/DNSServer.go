@@ -12,9 +12,9 @@ import (
 	"time"
 )
 
-var IpToDNS = make(map[string]string)
-var ipstore = make([]string, 0)
-var mutex = sync.Mutex{}
+var IpToDNS = make(map[string]string) // key = IP, value = dnsname
+var allowed_ips = make([]string, 0)
+var Mutex = sync.Mutex{}
 
 func StartDNSServer(channel chan string) {
 	fmt.Println("Starting DNS Server...")
@@ -29,11 +29,9 @@ func StartDNSServer(channel chan string) {
 func checkForKnownIp(channel chan string) {
 	for {
 		ip := <-channel
-		fmt.Println("ToCheck got " + ip)
-
-		if !contains(ipstore, ip) {
-			fmt.Println("add ip " + ip)
-			ipstore = append(ipstore, ip)
+		if !contains(allowed_ips, ip) {
+			fmt.Printf("[%s] REGISTERD NEW CLIENT\n" , ip)
+			allowed_ips = append(allowed_ips, ip)
 		}
 	}
 }
@@ -80,28 +78,46 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 	remoteIP := strings.Split(w.RemoteAddr().String(), ":")[0]
 
 	ip := net.IPv4(192, 168, 99, 1)
-	if contains(ipstore, remoteIP) {
+	if contains(allowed_ips, remoteIP) {
 
-		ips, err := net.LookupIP(r.Question[0].Name)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
-			//os.Exit(1)
-		}
-		ip = nil
-		for _, iprunner := range ips {
-			if iprunner.To4() != nil {
-				ip = iprunner.To4()
+		foundCachedIp := false
+		Mutex.Lock()
+		for cachedIp, cachedDnsName := range IpToDNS{
+			if r.Question[0].Name == cachedDnsName{
+				ip = net.ParseIP(cachedIp)
+				//fmt.Printf("Found cached IP %s for DNS-Request %s\n", r.Question[0].Name, ip.String())
+				foundCachedIp =  true
 				break
 			}
 		}
-		if ip == nil && len(ips) > 0 {
-			ip = ips[0]
+		Mutex.Unlock()
+		if !foundCachedIp {
+			ips, err := net.LookupIP(r.Question[0].Name)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Could not get IPs: %v\n", err)
+				//os.Exit(1)
+			}
+			ip = nil
+			for _, iprunner := range ips {
+				if iprunner.To4() != nil {
+					ip = iprunner.To4()
+					break
+				}
+			}
+			if ip == nil && len(ips) > 0 {
+				ip = ips[0]
+			}
 		}
+
 	}
 
 	if ip != nil {
-		fmt.Printf("[%s] DNS-Request: %s | Answer: %s", remoteIP, r.Question[0].Name, ip.String())
-		addDnsToIp(remoteIP, ip.String())
+		//fmt.Printf("[%s] DNS-Request: %s | Answer: %s\n", remoteIP, r.Question[0].Name, ip.String())
+		for _, allowed_ip := range allowed_ips {
+			if allowed_ip == remoteIP {
+				addDnsToIp(r.Question[0].Name, ip.String())
+			}
+		}
 	}
 
 	if v4 {
@@ -154,14 +170,12 @@ func handleRequest(w dns.ResponseWriter, r *dns.Msg) {
 			println("Status", w.TsigStatus().Error())
 		}
 	}
-	if *printf {
-		fmt.Printf("%v\n", m.String())
-	}
 	w.WriteMsg(m)
 }
 
-func addDnsToIp(remoteIP string, dnsname string) {
-	mutex.Lock()
-	IpToDNS[remoteIP] = dnsname
-	mutex.Unlock()
+func addDnsToIp(dnsname string, ip string) {
+	Mutex.Lock()
+	IpToDNS[ip] = dnsname
+	//fmt.Println(IpToDNS)
+	Mutex.Unlock()
 }
